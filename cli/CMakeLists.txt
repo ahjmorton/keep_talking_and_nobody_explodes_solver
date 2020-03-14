@@ -1,0 +1,3 @@
+ADD_EXECUTABLE(password_solve password_solve.c)
+
+target_link_libraries(password_solve PUBLIC lib_password_solve)

@@ -1,0 +1,1 @@
+ADD_LIBRARY(lib_password_solve lib_password_solve.c)
