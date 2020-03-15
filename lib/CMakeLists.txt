@@ -1,4 +1,6 @@
-ADD_LIBRARY(lib_char_map char_map.c)
-ADD_LIBRARY(lib_password_solve password_solve.c)
+ADD_LIBRARY(lib_char_map STATIC char_map.c)
+ADD_LIBRARY(lib_password_solve STATIC password_solve.c)
+ADD_LIBRARY(lib_morse_code_solve STATIC morse_code_solve.c)
 
 TARGET_LINK_LIBRARIES(lib_password_solve PRIVATE lib_char_map)
+TARGET_LINK_LIBRARIES(lib_morse_code_solve PRIVATE lib_char_map)
