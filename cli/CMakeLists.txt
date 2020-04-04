@@ -1,5 +1,7 @@
 ADD_EXECUTABLE(password_solve password_solve.c)
 ADD_EXECUTABLE(morse_code_solve morse_code_solve.c)
+ADD_EXECUTABLE(maze_solve maze_solve.c)
 
 target_link_libraries(password_solve PRIVATE lib_password_solve)
 target_link_libraries(morse_code_solve PRIVATE lib_morse_code_solve)
+target_link_libraries(maze_solve PRIVATE lib_maze_solve)
