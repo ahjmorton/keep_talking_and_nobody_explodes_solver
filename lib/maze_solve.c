@@ -4,7 +4,7 @@
 
 #include "lib_maze_solve.h"
 
-#define MAZE_COUNT 1
+#define MAZE_COUNT 9
 #define MAZE_WIDTH 6
 
 typedef uint8_t maze_t[MAZE_WIDTH][MAZE_WIDTH];
@@ -40,6 +40,70 @@ static const maze_t MAZES[MAZE_COUNT] = {
     {down_up, right, down_t, left_up, right, left_t},
     {right_t, left_right, down_left, down_right, left, down_up},
     {right_up, left, right_up, left_up, right, left_up}
+  },
+  {
+    {right, up_t, left, down_right, up_t, left},
+    {down_right, left_up, down_right, left_up, marker(right_up), down_left},
+    {down_up, down_right, left_up, down_right, left_right, left_t},
+    {right_t, marker(left_up), down_right, left_up, down, down_up},
+    {down_up, down, down_up, down_right, left_up, down_up},
+    {up, right_up, left_up, right_up, left_right, left_up}
+  },
+  {
+    {down_right, left_right, down_left, down, down_right, down_left},
+    {up, down, down_up, right_up, left_up, down_up},
+    {down_right, left_t, down_up, down_right, down_left, down_up},
+    {down_up, down_up, down_up, marker(down_up), down_up, marker(down_up)},
+    {down_up, right_up, left_up, down_up, down_up, down_up},
+    {right_up, left_right, left_right, left_up, right_up, left_up}
+  },
+  {
+    {marker(down_right), down_left, right, left_right, left_right, down_left},
+    {down_up, down_up, down_right, left_right, left_right, left_t},
+    {down_up, right_up, left_up, down_right, left, down_up},
+    {marker(down_up), right, left_right, down_t, left_right, left_t},
+    {right_t, left_right, left_right, left_right, down_left, down_up},
+    {right_up, left_right, left, right, left_up, up}
+  },
+  {
+    {right, left_right, left_right, left_right, up_t, down_left},
+    {down_right, left_right, left_right, up_t, left_up, up},
+    {right_t, down_left, right, left_up, marker(down_right), down_left},
+    {down_up, right_up, left_right, down_left, up, down_up},
+    {down_up, down_right, left_right, down_t, left, down_up},
+    {up, right_up, left_right, marker(left_right), left_right, left_up}
+  },
+  {
+    {down, down_right, down_left, right, marker(up_t), down_left},
+    {down_up, down_up, down_up, down_right, left_up, down_up},
+    {right_t, left_up, up, down_up, down_right, left_up},
+    {right_up, down_left, down_right, left_t, down_up, down},
+    {down_right, left_up, marker(up), down_up, right_up, left_t},
+    {right_up, left_right, left_right, left_up, right, left_up}
+  },
+  {
+    {down_right, marker(left_right), left_right, down_left, down_right, down_left},
+    {down_up, down_right, left, right_up, left_up, down_up},
+    {right_up, left_up, down_right, left, down_right, left_up},
+    {down_right, down_left, right_t, left_right, left_up, down},
+    {down_up, up, right_up, left_right, down_left, down_up},
+    {right_up, marker(left_right), left_right, left_right, down_t, left_up}
+  },
+  {
+    {down, down_right, left_right, marker(down_left), down_right, down_left},
+    {right_t, down_t, left, right_up, left_up, down_up},
+    {down_up, down_right, left_right, left_right, down_left, down_up},
+    {down_up, right_up, marker(down_left), right, down_t, left_up},
+    {down_up, down, right_up, left_right, left_right, left},
+    {right_up, down_t, left_right, left_right, left_right, left}
+  },
+  {
+    {down, down_right, left_right, left_right, up_t, down_left},
+    {down_up, down_up, marker(down_right), left, down_up, down_up},
+    {right_t, down_t, left_up, down_right, left_up, down_up},
+    {down_up, down, down_right, left_up, right, left_t},
+    {marker(down_up), down_up, down_up, down_right, down_left, up},
+    {right_up, left_up, right_up, left_up, right_up, left}
   }
 };
 
@@ -100,6 +164,7 @@ static direction_store * init_direction_store(void)
 
 static void free_direction_store(direction_store * store)
 {
+
    free(store->nodes);
    free(store);
 }
@@ -269,7 +334,8 @@ static uint8_t do_solve_maze(
   const maze_t * maze,
   const maze_solve_coors * const start_position,
   const maze_solve_coors * const end_position,
-  enum maze_solve_direction ** result_directions
+  enum maze_solve_direction ** result_directions,
+  enum maze_solve_error * error_code
 )
 {
   if(start_position->x == end_position->x && 
@@ -330,9 +396,10 @@ static uint8_t do_solve_maze(
   }
   
   p_q_node current;
-  pop_p_q(queue, &current);
+  bool no_errors = false;
+  no_errors = pop_p_q(queue, &current);
 
-  while(!(
+  while(no_errors && !(
     (current.x == end_position->x) && 
     (current.y == end_position->y))
   ) {
@@ -387,11 +454,18 @@ static uint8_t do_solve_maze(
         add_direction(store, D_Left, current.path_handle)
       );
     }
-    pop_p_q(queue, &current);
-  } 
-  uint8_t result_length = read_off_directions(store, 
-    current.path_handle, 
-    result_directions);
+    no_errors = pop_p_q(queue, &current);
+  }
+  uint8_t result_length = 0;
+  if(!no_errors) {
+    (*error_code) = E_SolveError;
+  } else {
+    result_length = read_off_directions(
+      store, 
+      current.path_handle, 
+      result_directions
+    );
+  }
   free_direction_store(store);
   free_p_q(queue);
   return result_length;
@@ -407,7 +481,6 @@ static const maze_t * determine_maze(
     maze = MAZES + i;
     uint8_t first_cell = (*maze)[first_marker->y][first_marker->x];
     uint8_t second_cell = (*maze)[second_marker->y][second_marker->x];
-    
     if(is_marker(first_cell) && is_marker(second_cell)) {
       break;
     }
@@ -469,9 +542,9 @@ maze_solve_result * maze_solve(
       maze, 
       start_position, 
       end_position, 
-      &(result->directions)
+      &(result->directions),
+      &(result->error)
    );
-
   return result;
 }
 

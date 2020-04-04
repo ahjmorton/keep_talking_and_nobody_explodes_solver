@@ -10,6 +10,7 @@ enum maze_solve_error {
    E_InvalidSecondMarkerCoordinates = 3,
    E_InvalidStartCoordinates = 4,
    E_InvalidEndCoordinates = 5,
+   E_SolveError = 6,
 };
 
 enum maze_solve_direction {
