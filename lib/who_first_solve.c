@@ -14,7 +14,7 @@ struct display_word_mapping {
 // We include the start word as the first item in the array
 #define PUSH_WORD_COUNT 15
 #define BUTTON_WORD_COUNT 6
-#define ALL_BUTTON_WORDS_COUNT 29
+#define ALL_BUTTON_WORDS_COUNT 28
 
 static const struct display_word_mapping DISPLAY_WORD_MAP[DISPLAY_WORD_COUNT] = {
   { "yes", 2 },

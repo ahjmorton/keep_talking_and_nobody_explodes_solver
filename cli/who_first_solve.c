@@ -3,14 +3,13 @@
 #include "lib_who_first_solve.h"
 
 int main(int argc, char** argv) {
- char * display_word = "okay";
- char * button_words[6] = {
-   "no", "uhhh", "blank", "blank", "wait", "middle"
- };
+ if(argc != 8) {
+   return 1;
+ }
  who_first_result * result = solve_who_first(
-    display_word,
-    button_words,
-    6
+    argv[1],
+    argv + 2,
+    argc - 2
   );
   int rc = 0;
   if(who_first_error(result) != E_None) {
