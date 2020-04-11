@@ -1,5 +1,12 @@
-ADD_EXECUTABLE(maze_solve_test "test_maze_solve.cpp")
+file(GLOB test_srcs "*.cpp")
 
-TARGET_LINK_LIBRARIES(maze_solve_test lib_maze_solve gtest gtest_main)
-
-ADD_TEST(maze_solve_test maze_solve_test)
+foreach(test_src ${test_srcs})
+  get_filename_component(test_file_name ${test_src} NAME)
+  string(REGEX MATCH "^test_(.*)\\.[^.]*$" dummy ${test_file_name})
+  set(lib_under_test ${CMAKE_MATCH_1})
+  string(JOIN "_" test_name ${lib_under_test} "test")
+  string(JOIN "_" lib_target_name "lib" ${lib_under_test})
+  ADD_EXECUTABLE(${test_name} ${test_src})
+  TARGET_LINK_LIBRARIES(${test_name} ${lib_target_name} gtest gtest_main)
+  ADD_TEST(${test_name} ${test_name})
+endforeach()
