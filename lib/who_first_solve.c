@@ -112,8 +112,7 @@ static const char * WORD_MAP[START_WORD_COUNT][PUSH_WORD_COUNT] = {
 
 struct who_first_result {
   enum who_first_error_code error;
-  uint8_t start_word_i;
-  uint8_t word_i;
+  const char * word;
 };
 
 void free_who_first_result(who_first_result * result) {
@@ -125,7 +124,7 @@ enum who_first_error_code who_first_error(const who_first_result * result) {
 }
 
 const char * who_first_to_push(const who_first_result * result) {
-   return WORD_MAP[result->start_word_i][result->word_i];
+   return result->word;
 }
 
 static uint8_t button_start_word_i_for(
@@ -173,8 +172,7 @@ static enum who_first_error_code do_find_push_word(
   const char * start_word,
   const char ** button_words,
   uint8_t button_word_count,
-  uint8_t * start_word_i,
-  uint8_t * push_word_i
+  const char ** result_word
 ) {
   uint8_t s_word_i;
   for(s_word_i = 0; s_word_i < START_WORD_COUNT; s_word_i++) {
@@ -191,7 +189,6 @@ static enum who_first_error_code do_find_push_word(
   if(s_word_i == START_WORD_COUNT) {
     return E_ButtonPressFindError;
   }
-  (*start_word_i) = s_word_i;
 
   const char ** push_word_line = WORD_MAP[s_word_i];
   uint8_t p_word_i;
@@ -215,7 +212,8 @@ static enum who_first_error_code do_find_push_word(
   if(p_word_i == PUSH_WORD_COUNT) {
     return E_ButtonPressFindError;
   }
-  (*push_word_i) = p_word_i;
+
+  (*result_word) = push_word_line[p_word_i];
 
   return E_None;
 }
@@ -242,12 +240,13 @@ who_first_result * solve_who_first(
    if(result->error != E_None) {
      return result;
    }
+   uint8_t start_word_i;
+   uint8_t word_i;
    result->error = do_find_push_word(
      button_words[button_start_word_i],
      button_words,
      button_words_count,
-     &(result->start_word_i),
-     &(result->word_i)
+     &(result->word)
    );
 
    return result;
