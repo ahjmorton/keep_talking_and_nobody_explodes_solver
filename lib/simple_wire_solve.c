@@ -62,7 +62,7 @@ static uint8_t solve_5_wire(
   const uint8_t last_serial_number_digit) {
   set_wire_counts(wire_counts, wires, 5);
   if(wires[4] == C_Black && is_odd(last_serial_number_digit)) {
-    return 4;
+    return 3;
   } else if(wire_counts[C_Red] == 1 && wire_counts[C_Yellow] > 1) {
     return 0;
   } else if(wire_counts[C_Black] == 0) {
