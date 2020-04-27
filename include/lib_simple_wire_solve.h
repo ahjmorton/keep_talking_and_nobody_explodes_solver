@@ -21,8 +21,6 @@ static const enum simple_wire_colours simple_wire_colour_values[SIMPLE_WIRE_COLO
   C_White
 };
 
-#define SIMPLE_WIRE_COLOUR_LOOKUP 
-
 enum simple_wire_error_code {
   E_None = 0,
   E_TooManyWires = 1,
