@@ -1,9 +1,8 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "lib_password_solve.h"
-#include "lib_char_map.h"
 
 static const char * WORDS[] = {
 "about",
@@ -46,29 +45,37 @@ static const char * WORDS[] = {
 static const size_t WORDS_LENGTH = sizeof(WORDS) / sizeof(WORDS[0]);
 #define WORD_LENGTH 5
 
-const char * password_solve(const char * letters, uint32_t letters_length) {
-   char_map * letter_char_map = init_char_map();
-   pop_char_map(letter_char_map, letters, letters_length);
+uint8_t password_solve(const char ** letter_sets, uint8_t letters_set_length, password_solve_result *const result_holder) {
 
-   char_map * word_char_map = init_char_map();
-   const char * result = NULL;
-   for(uint32_t i = 0; i < WORDS_LENGTH && result == NULL; i++) {
-     clear_char_map(word_char_map);
-     const char * word = WORDS[i];
-     pop_char_map(word_char_map, word, WORD_LENGTH);
-     uint8_t c;
-     for(c = 0; c < WORD_LENGTH; c++) {
-        const char ch = word[c];
-        if(count_for(word_char_map, ch) > count_for(letter_char_map, ch)) {
-          break;
-        }
-     }
-     if(c >= WORD_LENGTH) {
-       result = word;
+   bool to_include[WORDS_LENGTH];
+   memset(to_include, true, WORDS_LENGTH * sizeof(to_include[0]));
+   uint8_t include_count = WORDS_LENGTH;
+   for(int i = 0 ; i < WORDS_LENGTH; i++) {
+     bool all_sets_match = true;
+     for(int ic = 0; ic < WORD_LENGTH && ic < letters_set_length && all_sets_match; ic++) {
+       char c = WORDS[i][ic];
+       const char * letter_set = letter_sets[ic];
+       bool letter_set_match_found = false;
+       for(int lsic = 0; lsic < LETTER_SET_SIZE && !letter_set_match_found; lsic++) {
+         char lsc = letter_set[lsic];
+         if(c == lsc) {
+           letter_set_match_found = true;
+         }
+       }
+       if(!letter_set_match_found) {
+         all_sets_match = false;
+         include_count--;
+         to_include[i] = false;
+       }
      }
    }
-   free_char_map(letter_char_map);
-   free_char_map(word_char_map);
+   result_holder->possible_words = (const char **)malloc(include_count * sizeof(char *));
+   int include_i = 0;
+   for(int i = 0; i < WORDS_LENGTH; i++) {
+      if(to_include[i]) {
+        result_holder->possible_words[include_i++] = WORDS[i];
+      }
+   }
 
-   return result;
+   return include_count;
 }

@@ -5,16 +5,29 @@
 
 int main(int argc, char **argv) 
 {
-  if(argc != 2) {
+  if(argc == 1) {
      return 1;
   }
-  
-  char * letters = argv[1];
-  const char * password = password_solve(letters, strlen(letters));
-  if(password == NULL) {
+
+  if(argc > 6) {
      return 2;
+  }
+ 
+  for(int i = 1; i < argc; i++) {
+    if(strlen(argv[i]) != LETTER_SET_SIZE) {
+      return 4 + i;
+    }
+  }
+
+  password_solve_result holder; 
+
+  uint8_t solution_count =  password_solve(argv + 1, argc - 1, &holder);
+  if(solution_count == 0) {
+     return 3;
   } else {
-     printf("%s\n", password);
+     for(int i = 0; i < solution_count; i++) {
+       printf("%s\n", holder.possible_words[i]);
+     }
      return 0;
   }
 }

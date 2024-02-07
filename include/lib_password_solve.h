@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
-const char * password_solve(const char * letters, uint32_t letters_length);
+#define LETTER_SET_SIZE 6
+
+typedef struct {
+  const char ** possible_words;
+} password_solve_result;
+
+uint8_t password_solve(const char ** letter_sets, uint8_t letters_set_length, password_solve_result * const result_holder);
 
 #endif
